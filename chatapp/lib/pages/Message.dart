@@ -1,9 +1,12 @@
+import 'package:chatapp/chat/chatServices.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Message extends StatefulWidget {
-  const Message({super.key}) ;
+  const Message({super.key , required this.receiverID }) ;
+  final String receiverID ;
 
   @override
   State<Message> createState() => _MessageState();
@@ -12,9 +15,14 @@ class Message extends StatefulWidget {
 class _MessageState extends State<Message> {
   final TextEditingController _textEditingController = TextEditingController();
   String _message = '';
+  final ChatServices _chatServices = ChatServices();
+
+
 
   @override
   Widget build(BuildContext context) {
+    
+    
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -60,76 +68,7 @@ class _MessageState extends State<Message> {
           children: [
             Expanded(
 
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 20),
-                     Text('12:00' , style: TextStyle(color: Colors.black),),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Column(
-                        children:[ Container(
-                          
-                          decoration: BoxDecoration(
-                             
-                            borderRadius: BorderRadius.circular(20),
-                            color: _message != ''
-                                ? const Color.fromARGB(255, 86, 255, 91)
-                                : Colors.transparent,
-                          ),
-                          padding: EdgeInsets.all(10),
-                          child: Text(
-                            
-                      
-                            _message,
-                            style: TextStyle(
-                          
-                              backgroundColor:
-                                  const Color.fromARGB(255, 86, 255, 91),
-                              fontSize: 20,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                       
-                        ],
-                      ),
-
-                    ),
-                    SizedBox(height: 20),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        
-                        decoration: BoxDecoration(
-                           
-                          borderRadius: BorderRadius.circular(20),
-                          color: _message != ''
-                              ? Color.fromARGB(255, 189, 189, 189)
-                              : Colors.transparent,
-                        ),
-                        padding: EdgeInsets.all(10),
-                        child: Text(
-                          
-
-                          _message,
-                          style: TextStyle(
-                        
-                            backgroundColor:
-                                Color.fromARGB(255, 189, 189, 189),
-                            fontSize: 20,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                    
-                  ],
-                ),
-              ),
+              child: _messagesList(widget.receiverID),
             ),
             TextField(
               controller: _textEditingController,
@@ -141,10 +80,11 @@ class _MessageState extends State<Message> {
                 hintText: 'Type a message',
                 suffixIcon: IconButton(
                   icon: Icon(Icons.send),
-                  onPressed: () {
+                  onPressed: ()async {
                     setState(() {
                       _message = _textEditingController.text;
                     });
+                    await _chatServices.sendMessage(widget.receiverID, _message);
                   },
                 ),
               ),
@@ -154,4 +94,37 @@ class _MessageState extends State<Message> {
       ),
     );
   }
+}
+
+Widget _messagesList(String receiverID) {
+  final ChatServices _chatServices = ChatServices();
+  return StreamBuilder(
+    stream: _chatServices.getMessages(receiverID),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return CircularProgressIndicator();
+      }
+      final messages = snapshot.data;
+      return ListView.builder(
+        itemCount: messages?.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Align(
+              
+             alignment: messages?[index]['senderID'] == receiverID ? Alignment.centerLeft : Alignment.centerRight,
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: messages?[index]['senderID'] == receiverID ? Colors.grey[300] : Colors.blue,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(messages?[index]['message'] , 
+                textAlign: TextAlign.start,
+                style: TextStyle(color: Colors.black , fontSize: 20) , )),
+            ),
+          );
+        },
+      );
+    },
+  );
 }

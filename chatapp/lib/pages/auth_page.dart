@@ -13,9 +13,11 @@ class Authpage extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, userSnapshot) {
           if (userSnapshot.connectionState == ConnectionState.waiting) {
+           
             return const Center(
+              
               child: CircularProgressIndicator(
-                color: Colors.black,
+               
               
               ),
             );

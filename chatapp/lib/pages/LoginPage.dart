@@ -64,6 +64,8 @@ class _LoginPageState extends State<LoginPage> {
                        fontWeight: FontWeight.bold),),
                     SizedBox(height: 40,),
                     TextFormField(
+                      
+
                       validator: (value){
                        if(value!.isEmpty){
                          return 'Please enter your email';
@@ -79,6 +81,7 @@ class _LoginPageState extends State<LoginPage> {
                       },
                       keyboardType: TextInputType.text,
                       decoration: InputDecoration(
+                        floatingLabelBehavior: FloatingLabelBehavior.never,
                         label: Text('Email'),
                         suffixIcon: const Icon(Icons.person),
                         border: OutlineInputBorder(
@@ -98,6 +101,7 @@ class _LoginPageState extends State<LoginPage> {
                       obscureText: true,
                       decoration: InputDecoration(
                         label: Text('Password'),
+                        floatingLabelBehavior: FloatingLabelBehavior.never,
                         suffixIcon: const Icon(Icons.lock),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20),

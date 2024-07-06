@@ -11,7 +11,8 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  
   final _formKey = GlobalKey<FormState>(); 
    String _username = '';
    String _email = '';
@@ -24,6 +25,12 @@ class _SignupState extends State<Signup> {
           password: _password,
           
         );
+        _firestore.collection("users").doc(resultat.user!.uid).set({
+          'email': _email,
+          'username': _username,
+        
+          'id': resultat.user!.uid,
+        });
         return resultat.user;
       } catch (e) {
         print(e);
@@ -71,6 +78,7 @@ class _SignupState extends State<Signup> {
                 
                 children: [
                   TextFormField(
+
                     onSaved: (value){
                       _username = value.toString();
                     },
@@ -79,6 +87,7 @@ class _SignupState extends State<Signup> {
                       
                       suffixIcon: Icon(Icons.person),
                       labelText: 'Username',
+                      floatingLabelBehavior: FloatingLabelBehavior.never,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -99,6 +108,7 @@ class _SignupState extends State<Signup> {
                     },
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
+                      floatingLabelBehavior: FloatingLabelBehavior.never,
                       suffixIcon: Icon(Icons.email),
                       labelText: 'Email',
                       border: OutlineInputBorder(
@@ -121,7 +131,7 @@ class _SignupState extends State<Signup> {
                     
                    obscureText: true,
                     decoration: InputDecoration(
-                      
+                      floatingLabelBehavior: FloatingLabelBehavior.never,
                       suffixIcon: Icon(Icons.lock), 
                       labelText: 'Password',
                       border: OutlineInputBorder(
